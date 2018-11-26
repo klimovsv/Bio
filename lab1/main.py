@@ -2,8 +2,19 @@ from misc.reader import Reader
 import argparse
 
 
+def parse():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', '--gap', type=int, default=-2)
+    parser.add_argument('seq1', type=str)
+    parser.add_argument('seq2', type=str)
+    parser.add_argument('-o', type=str, required=False)
+    parser.add_argument('-m', '--mapper', type=str, required=True)
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    reader = Reader({"first": "../fastafiles/first.fasta", "second": "../fastafiles/second.fasta", "mapper": ''})
+    arguments = parse()
+    reader = Reader(arguments)
     first, second = reader.first_seq, reader.seqond_seq
     first.print()
     second.print()
