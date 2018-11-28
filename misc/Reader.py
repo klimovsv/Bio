@@ -1,20 +1,19 @@
-from misc.Seq import Seq
 import json
 
 
 class Reader:
     def __init__(self, config):
         self.config = config
+        self.mapper = self.load_mapper(config.mapper)
         self.first_seq = self.read_seq(config.seq1)
         self.seqond_seq = self.read_seq(config.seq2)
-        self.seqs = (self.first_seq , self.seqond_seq)
-        self.mapper = self.load_mapper(config.mapper)
+        self.seqs = (self.first_seq, self.seqond_seq)
         self.NUCLEOTID_ALPH = set('A   T   G   C   S   W   R   Y   K   M   B   V   H   D   N'.split())
         self.AMINO_ALPH = set('A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W  Y  V  B  Z  X  *'.split())
 
     def read_seq(self, file_name):
         with open(file_name, 'r') as file:
-            return Seq(''.join(file.read().splitlines()[1:]))
+            return ''.join(file.read().splitlines()[1:])
 
     def print(self):
         print(self.AMINO_ALPH)
