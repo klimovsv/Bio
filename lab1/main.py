@@ -1,6 +1,6 @@
 from misc.Reader import Reader
 from misc.Mapper import Mapper
-from misc.Algorithms import lab1
+from misc.Algorithms import *
 import argparse
 
 
@@ -18,10 +18,13 @@ if __name__ == "__main__":
     arguments = parse()
     reader = Reader(arguments)
     first, second = reader.seqs
+    # print(reader.seqs)
     mapper = Mapper(reader.mapper, first, second)
     gap = arguments.gap
-    firstal, secondal, score, first, second = lab1(mapper, reader, gap)
-    # print(lab1(mapper, reader, gap))
-    print(firstal)
-    print(secondal)
-    print(score)
+    # firstal, secondal, score, first, second = lab1(mapper, reader, gap)
+    # print(firstal)
+    # print(secondal)
+    # print(score)
+    # lab1(mapper, reader, gap)
+    # lab2(mapper, reader, gap)
+    smith_waterman(first, second, gap, reader.mapper)
