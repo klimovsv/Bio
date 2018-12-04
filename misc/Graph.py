@@ -11,11 +11,26 @@ class Node:
         self.start = start
         self.end = end
         self.next = []
+        self.prev = []
         self.score = score
+        self.root = False
         self.diag_index = diag_index
 
-    def add_edge(self, edge):
+    def add_next(self, edge):
         self.next.append(edge)
+
+    def add_prev(self, edge):
+        self.prev.append(edge)
+
+    def is_reachable(self,node):
+        end = self.end
+        start = node.start
+        return end[0] >= start[0] and end[1] >= start[1]
+
+    def get_dist(self, node):
+        start = self.end
+        end = node.start
+        return end[0] - start[0] + end[1] - start[1]
 
     @property
     def node_len(self):
@@ -26,12 +41,10 @@ class Node:
 
 
 class Edge:
-    def __init__(self, start, end, prec, succ, score):
+    def __init__(self, prev_node, next_node,score):
+        self.prev = prev_node
+        self.next = next_node
         self.score = score
-        self.start = start
-        self.end = end
-        self.prec = prec
-        self.succ = succ
 
 
 class Diag:

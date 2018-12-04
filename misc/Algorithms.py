@@ -161,7 +161,35 @@ def create_diags_with_nodes(seq1: str, seq2: str, table: TableType) -> List[Diag
     # print_matrix(M)
 
 
-def align_sequences(seq1: str, seq2: str, table: TableType):
+def gen_new_path(path, index, score):
+    max_diag_ind = path[1]
+    min_diag_ind = path[0]
+    new_max = max_diag_ind
+    new_min = min_diag_ind
+    new_score = score
+    if index > max_diag_ind:
+        new_max = index
+    if index < min_diag_ind:
+        new_max = index
+    return new_min, new_max, new_score
+
+
+def traverse(node: Node, path: Tuple):
+    edges = node.next
+    paths = []
+    score = path[2]
+    for edge in edges:
+        next_node = edge.next
+        p = gen_new_path(path, next_node.diag_index, score + edge.score + next_node.score)
+        paths += traverse(next_node, p)
+
+    if len(edges) == 0:
+        return [path]
+    else:
+        return paths
+
+
+def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     diags = create_diags_with_nodes(seq1, seq2, table)
     mapper = Mapper(table, seq1, seq2)
 
@@ -178,7 +206,35 @@ def align_sequences(seq1: str, seq2: str, table: TableType):
 
     diags = diags[:max_diag_num]
 
-    print(diags)
+    nodes = []
+    for diag in diags:
+        nodes += diag.nodes
+
+    # сортировка веришн
+    nodes.sort(key=operator.attrgetter("start"))
+    print(nodes)
+
+    # построение графа
+    for i in range(len(nodes)):
+        node = nodes[i]
+        for j in range(i + 1, len(nodes)):
+            next_node = nodes[j]
+            if node.is_reachable(next_node):
+                gap_score = node.get_dist(next_node) * gap
+                sum_wtih_gap = node.score + next_node.score + gap_score
+                if node.score <= sum_wtih_gap:
+                    edge = Edge(node, next_node, gap_score)
+                    node.add_next(edge)
+                    next_node.add_prev(edge)
+
+    # определение стартовых вершин и обход в глубину
+    paths = []
+    for node in nodes:
+        if len(node.prev) == 0:
+            paths += traverse(node, (node.diag_index, node.diag_index, node.score))
+    optimal_path = sorted(paths,key=lambda path: path[2])[-1]
+
+    smith_waterman(seq1, seq2, gap, table, optimal_path[0], optimal_path[1])
 
     N = empty_table(len(seq1), len(seq2))
     for diag in diags:
