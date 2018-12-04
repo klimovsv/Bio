@@ -6,9 +6,35 @@ class Reader:
         self.config = config
         self.mapper = self.load_mapper(config.mapper)
         self.first_seq = self.read_seq(config.seq1)
-        self.seqond_seq = self.read_seq(config.seq2)
+        self.second_seq = self.read_seq(config.seq2)
+        self.database = []
         self.out = config.o
-        self.seqs = (" " + self.first_seq, " " + self.seqond_seq)
+        self.seqs = (" " + self.first_seq, " " + self.second_seq)
+
+    def read_database(self,filename):
+        f = open(filename, 'r')
+
+        seqs = []
+
+        current_title = ''
+        current_seq = ''
+
+        for line in f.readlines():
+            if (line.startswith('>') or line.startswith('~')) and current_seq != '':
+                seqs.append({
+                    'name': current_title,
+                    'seq': current_seq
+                })
+                current_seq = ''
+            if line.startswith('~'):
+                break
+            if line.startswith('>'):
+                current_title = line.split('|')[2].strip()
+            else:
+                current_seq += line.rstrip()
+
+        self.database = seqs
+        f.close()
 
     def read_seq(self, file_name):
         with open(file_name, 'r') as file:

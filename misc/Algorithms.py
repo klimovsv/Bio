@@ -232,7 +232,7 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     for node in nodes:
         if len(node.prev) == 0:
             paths += traverse(node, (node.diag_index, node.diag_index, node.score))
-    optimal_path = sorted(paths,key=lambda path: path[2])[-1]
+    optimal_path = sorted(paths, key=lambda path: path[2])[-1]
 
     smith_waterman(" "+seq1, " "+seq2, gap, table, optimal_path[0] - 32, optimal_path[1] + 32)
 
