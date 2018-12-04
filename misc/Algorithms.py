@@ -170,7 +170,7 @@ def gen_new_path(path, index, score):
     if index > max_diag_ind:
         new_max = index
     if index < min_diag_ind:
-        new_max = index
+        new_min = index
     return new_min, new_max, new_score
 
 
@@ -221,6 +221,7 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
             next_node = nodes[j]
             if node.is_reachable(next_node):
                 gap_score = node.get_dist(next_node) * gap
+                print(gap_score)
                 sum_wtih_gap = node.score + next_node.score + gap_score
                 if node.score <= sum_wtih_gap:
                     edge = Edge(node, next_node, gap_score)
@@ -230,11 +231,14 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     # определение стартовых вершин и обход в глубину
     paths = []
     for node in nodes:
+        print(node.diag_index)
         if len(node.prev) == 0:
             paths += traverse(node, (node.diag_index, node.diag_index, node.score))
     optimal_path = sorted(paths, key=lambda path: path[2])[-1]
 
+    print(paths)
     smith_waterman(" "+seq1, " "+seq2, gap, table, optimal_path[0] - 32, optimal_path[1] + 32)
+    print(optimal_path)
 
     N = empty_table(len(seq1), len(seq2))
     for diag in diags:

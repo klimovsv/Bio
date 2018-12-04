@@ -25,7 +25,7 @@ class Node:
     def is_reachable(self,node):
         end = self.end
         start = node.start
-        return end[0] >= start[0] and end[1] >= start[1]
+        return end[0] <= start[0] and end[1] <= start[1]
 
     def get_dist(self, node):
         start = self.end

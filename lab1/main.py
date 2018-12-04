@@ -17,7 +17,7 @@ def parse():
 if __name__ == "__main__":
     arguments = parse()
     reader = Reader(arguments)
-    reader.read_database('/home/sergey/Downloads/uniprot_sprot.fasta')
+    # reader.read_database('/home/sergey/Downloads/uniprot_sprot.fasta')
     first, second = reader.seqs
     # print(reader.seqs)
     mapper = Mapper(reader.mapper, first, second)
