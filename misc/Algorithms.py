@@ -234,7 +234,7 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
             paths += traverse(node, (node.diag_index, node.diag_index, node.score))
     optimal_path = sorted(paths,key=lambda path: path[2])[-1]
 
-    smith_waterman(seq1, seq2, gap, table, optimal_path[0], optimal_path[1])
+    smith_waterman(" "+seq1, " "+seq2, gap, table, optimal_path[0] - 32, optimal_path[1] + 32)
 
     N = empty_table(len(seq1), len(seq2))
     for diag in diags:

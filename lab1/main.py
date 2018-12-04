@@ -29,3 +29,4 @@ if __name__ == "__main__":
     # lab2(mapper, reader, gap)
     # smith_waterman(first, second, gap, reader.mapper)
     align_sequences(first[1:], second[1:], reader.mapper, gap)
+    smith_waterman(first, second, gap, reader.mapper, -100, 100)
