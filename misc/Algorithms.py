@@ -19,63 +19,108 @@ def print_matrix(matrix):
     print()
 
 
-def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int):
-    len1 = len(seq1) - 1
-    len2 = len(seq2) - 1
+def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a_max: int):
+    len1 = len(seq1)
+    len2 = len(seq2)
 
     INS = 1
     DEL = 2
     STOP = 3
     DIAG = 0
 
-    def in_range(i: int, j: int) -> bool:
-        return i + b_max >= j >= i + b_min
+    start = max(0,(a_min-b_max)//2)
+    end = min(len1 - 1,(a_max-b_min)//2)
+    # ranges between y = x + b_min and y = x + b_max
+    #                y = -x + a_min and y = -x + a_max
+
+    def limit(_i, _j):
+        return len1 > _i >= 0 and len2 > _j >= 0
+
+    def in_range(_i: int, _j: int) -> bool:
+        return _i + b_max >= _j >= _i + b_min and _i + a_max >= _j >= _i + a_min and limit(_i, _j)
+
+    def get_intersection(_i: int):
+        return max(0, _i + a_min, _i + b_min), min(len2 - 1, _i + a_max, _i + b_max)
+
+    def set_element(d: dict, el, i: int, j: int):
+        if d.get(i) is None:
+            d[i] = {}
+        d[i][j] = el
 
     mapper = Mapper(table, seq1, seq2)
     max_element = ((-1, -1), (-1, -1))
-    F = empty_table(len1 + 1, len2 + 1)
+    # F = empty_table(len1 + 1, len2 + 1)
 
-    for i in range(len1 + 1):
-        F[i][0] = (0, STOP)
+    M = {}
 
-    for i in range(len2 + 1):
-        F[0][i] = (0, STOP)
+    # for i in range(len1 + 1):
+    #     F[i][0] = (0, STOP)
+    #
+    # for i in range(len2 + 1):
+    #     F[0][i] = (0, STOP)
 
-    for i in range(1, len1 + 1):
-        for j in range(1, len2 + 1):
+    for i in range(start, end + 1):
+        ranges = get_intersection(i)
+        for j in range(ranges[0], ranges[1] + 1):
             maximums = [(0, STOP)]
             if in_range(i - 1, j - 1):
-                match = F[i - 1][j - 1][0] + mapper(i, j)
+                match = M[i - 1][j - 1][0] + mapper(i, j)
                 maximums.append((match, DIAG))
 
             if in_range(i - 1, j):
-                insert = F[i - 1][j][0] + gap
+                insert = M[i - 1][j][0] + gap
                 maximums.append((insert, INS))
 
             if in_range(i, j - 1):
-                delete = F[i][j - 1][0] + gap
+                delete = M[i][j - 1][0] + gap
                 maximums.append((delete, DEL))
 
             maximum = max(maximums)
             if maximum[0] >= max_element[0][0]:
                 max_element = (maximum, (i, j))
-            F[i][j] = maximum
+            # M[i][j] = maximum
+            set_element(M, maximum, i, j)
+
+    # for i in range(1, len1 + 1):
+    #     # ranges = get_intersection(i)
+    #     for j in range(1, len2 + 1):
+    #         maximums = [(0, STOP)]
+    #         if in_range(i - 1, j - 1):
+    #             match = F[i - 1][j - 1][0] + mapper(i, j)
+    #             maximums.append((match, DIAG))
+    #
+    #         if in_range(i - 1, j):
+    #             insert = F[i - 1][j][0] + gap
+    #             maximums.append((insert, INS))
+    #
+    #         if in_range(i, j - 1):
+    #             delete = F[i][j - 1][0] + gap
+    #             maximums.append((delete, DEL))
+    #
+    #         maximum = max(maximums)
+    #         if maximum[0] >= max_element[0][0]:
+    #             max_element = (maximum, (i, j))
+    #         F[i][j] = maximum
+    #         # M[i][j] = maximum
+    #         set_element(M, maximum, i, j)
+
+    print(M)
 
     i = max_element[1][0]
     j = max_element[1][1]
     A = ""
     B = ""
-    while F[i][j][1] != STOP:
-        if F[i][j][1] == DIAG:
+    while M[i][j][1] != STOP:
+        if M[i][j][1] == DIAG:
             A = seq1[i] + A
             B = seq2[j] + B
             i -= 1
             j -= 1
-        elif F[i][j][1] == INS:
+        elif M[i][j][1] == INS:
             A = seq1[i] + A
             B = "-" + B
             i -= 1
-        elif F[i][j][1] == DEL:
+        elif M[i][j][1] == DEL:
             A = "-" + A
             B = seq2[j] + B
             j -= 1
@@ -90,17 +135,17 @@ def fine_print(*args):
     iB, jB = args[2]
     seq1, seq2 = args[3]
     if iA > iB:
-        print(seq1[1:iA] + A + seq1[jA + 1:])
-        print(" " * (iA - 1) + "|" * len(A))
-        print(" " * (iA - iB - 1) + seq2[:iB] + B + seq2[jB + 1:])
+        print(seq1[:iA] + A + seq1[jA + 1:])
+        print(" " * iA + "|" * len(A))
+        print(" " * (iA - iB) + seq2[:iB] + B + seq2[jB + 1:])
     elif iA < iB:
-        print(" " * (iB - iA - 1) + seq1[:iA] + A + seq1[jA + 1:])
-        print(" " * (iB - 1) + "|" * len(A))
-        print(seq2[1:iB] + B + seq2[jB + 1:])
+        print(" " * (iB - iA) + seq1[:iA] + A + seq1[jA + 1:])
+        print(" " * (iB ) + "|" * len(A))
+        print(seq2[:iB] + B + seq2[jB + 1:])
     elif iA == iB:
-        print(seq1[1:iA] + A + seq1[jA + 1:])
-        print(" " * (iB - 1) + "|" * len(A))
-        print(seq2[1:iB] + B + seq2[jB + 1:])
+        print(seq1[:iA] + A + seq1[jA + 1:])
+        print(" " * (iB) + "|" * len(A))
+        print(seq2[:iB] + B + seq2[jB + 1:])
 
 
 def create_diags_with_nodes(seq1: str, seq2: str, table: TableType) -> List[Diag]:
@@ -161,17 +206,17 @@ def create_diags_with_nodes(seq1: str, seq2: str, table: TableType) -> List[Diag
     # print_matrix(M)
 
 
-def gen_new_path(path, index, score):
+def gen_new_path(path, next_node, score):
     max_diag_ind = path[1]
     min_diag_ind = path[0]
     new_max = max_diag_ind
     new_min = min_diag_ind
     new_score = score
-    if index > max_diag_ind:
-        new_max = index
-    if index < min_diag_ind:
-        new_min = index
-    return new_min, new_max, new_score
+    if next_node.diag_index > max_diag_ind:
+        new_max = next_node.diag_index
+    if next_node.diag_index < min_diag_ind:
+        new_min = next_node.diag_index
+    return new_min, new_max, new_score, path[3], next_node
 
 
 def traverse(node: Node, path: Tuple):
@@ -180,7 +225,7 @@ def traverse(node: Node, path: Tuple):
     score = path[2]
     for edge in edges:
         next_node = edge.next
-        p = gen_new_path(path, next_node.diag_index, score + edge.score + next_node.score)
+        p = gen_new_path(path, next_node, score + edge.score + next_node.score)
         paths += traverse(next_node, p)
 
     if len(edges) == 0:
@@ -233,12 +278,17 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     for node in nodes:
         print(node.diag_index)
         if len(node.prev) == 0:
-            paths += traverse(node, (node.diag_index, node.diag_index, node.score))
+            paths += traverse(node, (node.diag_index, node.diag_index, node.score, node, node))
     optimal_path = sorted(paths, key=lambda path: path[2])[-1]
 
     print(paths)
-    smith_waterman(" "+seq1, " "+seq2, gap, table, optimal_path[0] - 32, optimal_path[1] + 32)
+    b_min = optimal_path[0] - 32
+    b_max = optimal_path[1] + 32
+    a_min = sum(optimal_path[3].start) - 32
+    a_max = sum(optimal_path[4].end) + 32
+    smith_waterman(seq1, seq2, gap, table, b_min, b_max, a_min, a_max)
     print(optimal_path)
+    print(b_min, b_max, a_min, a_max)
 
     N = empty_table(len(seq1), len(seq2))
     for diag in diags:

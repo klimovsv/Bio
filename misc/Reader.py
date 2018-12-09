@@ -12,29 +12,9 @@ class Reader:
         self.seqs = (" " + self.first_seq, " " + self.second_seq)
 
     def read_database(self,filename):
-        f = open(filename, 'r')
-
-        seqs = []
-
-        current_title = ''
-        current_seq = ''
-
-        for line in f.readlines():
-            if (line.startswith('>') or line.startswith('~')) and current_seq != '':
-                seqs.append({
-                    'name': current_title,
-                    'seq': current_seq
-                })
-                current_seq = ''
-            if line.startswith('~'):
-                break
-            if line.startswith('>'):
-                current_title = line.split('|')[2].strip()
-            else:
-                current_seq += line.rstrip()
-
-        self.database = seqs
-        f.close()
+        with open(filename,'r') as f:
+            self.database = json.load(f)
+        print(len(self.database))
 
     def read_seq(self, file_name):
         with open(file_name, 'r') as file:

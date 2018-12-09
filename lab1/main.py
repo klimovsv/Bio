@@ -17,7 +17,7 @@ def parse():
 if __name__ == "__main__":
     arguments = parse()
     reader = Reader(arguments)
-    # reader.read_database('/home/sergey/Downloads/uniprot_sprot.fasta')
+    reader.read_database('/home/sergey/Downloads/base.json')
     first, second = reader.seqs
     # print(reader.seqs)
     mapper = Mapper(reader.mapper, first, second)
@@ -30,4 +30,4 @@ if __name__ == "__main__":
     # lab2(mapper, reader, gap)
     # smith_waterman(first, second, gap, reader.mapper)
     align_sequences(first[1:], second[1:], reader.mapper, gap)
-    smith_waterman(first, second, gap, reader.mapper, -100, 100)
+    smith_waterman(first[1:], second[1:], gap, reader.mapper, -100, 100,-100,100)
