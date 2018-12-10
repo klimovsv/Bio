@@ -28,8 +28,9 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
     STOP = 3
     DIAG = 0
 
-    start = max(0,(a_min-b_max)//2)
-    end = min(len1 - 1,(a_max-b_min)//2)
+    start = (a_min - b_max) // 2
+    end = (a_max - b_min) // 2
+
     # ranges between y = x + b_min and y = x + b_max
     #                y = -x + a_min and y = -x + a_max
 
@@ -37,15 +38,16 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
         return len1 > _i >= 0 and len2 > _j >= 0
 
     def in_range(_i: int, _j: int) -> bool:
-        return _i + b_max >= _j >= _i + b_min and _i + a_max >= _j >= _i + a_min and limit(_i, _j)
+        return _i + b_max >= _j >= _i + b_min and -_i + a_max >= _j >= -_i + a_min and limit(_i, _j)
 
     def get_intersection(_i: int):
-        return max(0, _i + a_min, _i + b_min), min(len2 - 1, _i + a_max, _i + b_max)
+        return max(-_i + a_min, _i + b_min), min(- _i + a_max, _i + b_max)
 
     def set_element(d: dict, el, i: int, j: int):
         if d.get(i) is None:
             d[i] = {}
         d[i][j] = el
+        # print(i," ",j,"setted")
 
     mapper = Mapper(table, seq1, seq2)
     max_element = ((-1, -1), (-1, -1))
@@ -59,21 +61,41 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
     # for i in range(len2 + 1):
     #     F[0][i] = (0, STOP)
 
+    # print(start, end)
+    # start = 0
+    # end = len2 - 1
     for i in range(start, end + 1):
         ranges = get_intersection(i)
+        # print(ranges)
         for j in range(ranges[0], ranges[1] + 1):
             maximums = [(0, STOP)]
-            if in_range(i - 1, j - 1):
-                match = M[i - 1][j - 1][0] + mapper(i, j)
-                maximums.append((match, DIAG))
+            # print(i,j)
+            if not in_range(i - 1, j - 1):
+                # M[i - 1][j - 1] = (0, STOP)
+                set_element(M, (0, STOP), i - 1, j - 1)
 
-            if in_range(i - 1, j):
-                insert = M[i - 1][j][0] + gap
-                maximums.append((insert, INS))
 
-            if in_range(i, j - 1):
-                delete = M[i][j - 1][0] + gap
-                maximums.append((delete, DEL))
+            # maximums.append((match, DIAG))
+
+            if not in_range(i - 1, j):
+                # M[i - 1][j] = (0, STOP)
+                set_element(M,(0, STOP), i - 1, j)
+
+
+            # maximums.append((insert, INS))
+
+            if not in_range(i, j - 1):
+                set_element(M, (0, STOP), i, j - 1)
+                # M[i][j - 1] = (0, STOP)
+
+
+            # maximums.append((delete, DEL))
+
+            if in_range(i,j):
+                delete = (M[i][j - 1][0] + gap, DEL)
+                insert = (M[i - 1][j][0] + gap, INS)
+                match = (M[i - 1][j - 1][0] + mapper(i, j), DIAG)
+                maximums += [delete,insert,match]
 
             maximum = max(maximums)
             if maximum[0] >= max_element[0][0]:
@@ -110,7 +132,9 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
     j = max_element[1][1]
     A = ""
     B = ""
+    # print(i, j)
     while M[i][j][1] != STOP:
+        # print(i,j)
         if M[i][j][1] == DIAG:
             A = seq1[i] + A
             B = seq2[j] + B
@@ -126,7 +150,7 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
             j -= 1
 
     # print("Score : {}".format(max_element[0][0]))
-    return max_element[0][0] , fine_print((A, B), (i + 1, max_element[1][0]), (j + 1, max_element[1][1]), (seq1, seq2))
+    return max_element[0][0], fine_print((A, B), (i + 1, max_element[1][0]), (j + 1, max_element[1][1]), (seq1, seq2))
 
 
 def fine_print(*args):
@@ -136,17 +160,17 @@ def fine_print(*args):
     seq1, seq2 = args[3]
     res = ''
     if iA > iB:
-        res+=(seq1[:iA] + A + seq1[jA + 1:]) + '\n'
-        res+=(" " * iA + "|" * len(A))+ '\n'
-        res+=(" " * (iA - iB) + seq2[:iB] + B + seq2[jB + 1:])+ '\n'
+        res += (seq1[:iA] + A + seq1[jA + 1:]) + '\n'
+        res += (" " * iA + "|" * len(A)) + '\n'
+        res += (" " * (iA - iB) + seq2[:iB] + B + seq2[jB + 1:]) + '\n'
     elif iA < iB:
-        res+=(" " * (iB - iA) + seq1[:iA] + A + seq1[jA + 1:])+ '\n'
-        res+=(" " * (iB ) + "|" * len(A))+ '\n'
-        res+=(seq2[:iB] + B + seq2[jB + 1:])+ '\n'
+        res += (" " * (iB - iA) + seq1[:iA] + A + seq1[jA + 1:]) + '\n'
+        res += (" " * iB + "|" * len(A)) + '\n'
+        res += (seq2[:iB] + B + seq2[jB + 1:]) + '\n'
     elif iA == iB:
-        res+=(seq1[:iA] + A + seq1[jA + 1:])+ '\n'
-        res+=(" " * (iB) + "|" * len(A))+ '\n'
-        res+=(seq2[:iB] + B + seq2[jB + 1:])+ '\n'
+        res += (seq1[:iA] + A + seq1[jA + 1:]) + '\n'
+        res += (" " * iB + "|" * len(A)) + '\n'
+        res += (seq2[:iB] + B + seq2[jB + 1:]) + '\n'
     return res
 
 
@@ -244,8 +268,8 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     max_diag_num = 10
     min_diag_score = 10
 
-    diags = [diag for diag in diags if diag.diag_len >= min_diag_len]
-    diags = [diag for diag in diags if diag.diag_score(mapper) > min_diag_score]
+    diags = [diag for diag in diags if diag.diag_len >= min_diag_len and diag.diag_score(mapper) > min_diag_score]
+    # diags = [diag for diag in diags if diag.diag_score(mapper) > min_diag_score]
     if not diags:
         return -1, ''
 
@@ -284,13 +308,11 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     optimal_path = sorted(paths, key=lambda path: path[2])[-1]
 
     # print(paths)
-    b_min = optimal_path[0] - 32
-    b_max = optimal_path[1] + 32
-    a_min = sum(optimal_path[3].start) - 32
-    a_max = sum(optimal_path[4].end) + 32
-    res_score , res_alignment = smith_waterman(seq1, seq2, gap, table, b_min, b_max, a_min, a_max)
-    # print(optimal_path)
-    # print(b_min, b_max, a_min, a_max)
+    tmp = 0
+    b_min = optimal_path[0] - tmp
+    b_max = optimal_path[1] + tmp
+    a_min = sum(optimal_path[3].start) - tmp
+    a_max = sum(optimal_path[4].end) + tmp
 
     # N = empty_table(len(seq1), len(seq2))
     # for diag in diags:
@@ -302,5 +324,8 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     #             i += 1
     #             j += 1
     # print_matrix(N)
-    return res_score, res_alignment
 
+    res_score, res_alignment = smith_waterman(seq1, seq2, gap, table, b_min, b_max, a_min, a_max)
+    # print(optimal_path)
+    # print(b_min, b_max, a_min, a_max)
+    return res_score, res_alignment
