@@ -104,7 +104,7 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
     #         # M[i][j] = maximum
     #         set_element(M, maximum, i, j)
 
-    print(M)
+    # print(M)
 
     i = max_element[1][0]
     j = max_element[1][1]
@@ -125,8 +125,8 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
             B = seq2[j] + B
             j -= 1
 
-    print("Score : {}".format(max_element[0][0]))
-    fine_print((A, B), (i + 1, max_element[1][0]), (j + 1, max_element[1][1]), (seq1, seq2))
+    # print("Score : {}".format(max_element[0][0]))
+    return max_element[0][0] , fine_print((A, B), (i + 1, max_element[1][0]), (j + 1, max_element[1][1]), (seq1, seq2))
 
 
 def fine_print(*args):
@@ -134,18 +134,20 @@ def fine_print(*args):
     iA, jA = args[1]
     iB, jB = args[2]
     seq1, seq2 = args[3]
+    res = ''
     if iA > iB:
-        print(seq1[:iA] + A + seq1[jA + 1:])
-        print(" " * iA + "|" * len(A))
-        print(" " * (iA - iB) + seq2[:iB] + B + seq2[jB + 1:])
+        res+=(seq1[:iA] + A + seq1[jA + 1:]) + '\n'
+        res+=(" " * iA + "|" * len(A))+ '\n'
+        res+=(" " * (iA - iB) + seq2[:iB] + B + seq2[jB + 1:])+ '\n'
     elif iA < iB:
-        print(" " * (iB - iA) + seq1[:iA] + A + seq1[jA + 1:])
-        print(" " * (iB ) + "|" * len(A))
-        print(seq2[:iB] + B + seq2[jB + 1:])
+        res+=(" " * (iB - iA) + seq1[:iA] + A + seq1[jA + 1:])+ '\n'
+        res+=(" " * (iB ) + "|" * len(A))+ '\n'
+        res+=(seq2[:iB] + B + seq2[jB + 1:])+ '\n'
     elif iA == iB:
-        print(seq1[:iA] + A + seq1[jA + 1:])
-        print(" " * (iB) + "|" * len(A))
-        print(seq2[:iB] + B + seq2[jB + 1:])
+        res+=(seq1[:iA] + A + seq1[jA + 1:])+ '\n'
+        res+=(" " * (iB) + "|" * len(A))+ '\n'
+        res+=(seq2[:iB] + B + seq2[jB + 1:])+ '\n'
+    return res
 
 
 def create_diags_with_nodes(seq1: str, seq2: str, table: TableType) -> List[Diag]:
@@ -245,7 +247,7 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     diags = [diag for diag in diags if diag.diag_len >= min_diag_len]
     diags = [diag for diag in diags if diag.diag_score(mapper) > min_diag_score]
     if not diags:
-        return
+        return -1, ''
 
     diags.sort(key=operator.attrgetter("score"), reverse=True)
 
@@ -256,8 +258,8 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
         nodes += diag.nodes
 
     # сортировка веришн
-    nodes.sort(key=operator.attrgetter("start"))
-    print(nodes)
+    # nodes.sort(key=operator.attrgetter("start"))
+    # print(nodes)
 
     # построение графа
     for i in range(len(nodes)):
@@ -266,7 +268,7 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
             next_node = nodes[j]
             if node.is_reachable(next_node):
                 gap_score = node.get_dist(next_node) * gap
-                print(gap_score)
+                # print(gap_score)
                 sum_wtih_gap = node.score + next_node.score + gap_score
                 if node.score <= sum_wtih_gap:
                     edge = Edge(node, next_node, gap_score)
@@ -276,27 +278,29 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     # определение стартовых вершин и обход в глубину
     paths = []
     for node in nodes:
-        print(node.diag_index)
+        # print(node.diag_index)
         if len(node.prev) == 0:
             paths += traverse(node, (node.diag_index, node.diag_index, node.score, node, node))
     optimal_path = sorted(paths, key=lambda path: path[2])[-1]
 
-    print(paths)
+    # print(paths)
     b_min = optimal_path[0] - 32
     b_max = optimal_path[1] + 32
     a_min = sum(optimal_path[3].start) - 32
     a_max = sum(optimal_path[4].end) + 32
-    smith_waterman(seq1, seq2, gap, table, b_min, b_max, a_min, a_max)
-    print(optimal_path)
-    print(b_min, b_max, a_min, a_max)
+    res_score , res_alignment = smith_waterman(seq1, seq2, gap, table, b_min, b_max, a_min, a_max)
+    # print(optimal_path)
+    # print(b_min, b_max, a_min, a_max)
 
-    N = empty_table(len(seq1), len(seq2))
-    for diag in diags:
-        for node in diag.nodes:
-            i, j = node.start
-            ie, je = node.end
-            while i <= ie and j <= je:
-                N[i][j] = 1
-                i += 1
-                j += 1
-    print_matrix(N)
+    # N = empty_table(len(seq1), len(seq2))
+    # for diag in diags:
+    #     for node in diag.nodes:
+    #         i, j = node.start
+    #         ie, je = node.end
+    #         while i <= ie and j <= je:
+    #             N[i][j] = 1
+    #             i += 1
+    #             j += 1
+    # print_matrix(N)
+    return res_score, res_alignment
+

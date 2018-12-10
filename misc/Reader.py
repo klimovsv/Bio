@@ -14,7 +14,8 @@ class Reader:
     def read_database(self,filename):
         with open(filename,'r') as f:
             self.database = json.load(f)
-        print(len(self.database))
+        # print(len(self.database))
+        # print(len(self.database[0]))
 
     def read_seq(self, file_name):
         with open(file_name, 'r') as file:
