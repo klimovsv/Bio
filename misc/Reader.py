@@ -17,6 +17,16 @@ class Reader:
         # print(len(self.database))
         # print(len(self.database[0]))
 
+    def bigrams(self, seq):
+        bigrams = {}
+        for i in range(len(seq)-1):
+            cell = bigrams.get(seq[i:i+2])
+            if cell is None:
+                cell = []
+            cell += [i]
+
+        print(bigrams)
+
     def read_seq(self, file_name):
         with open(file_name, 'r') as file:
             lines = list(filter(lambda x: len(x.strip()) != 0, file.read().splitlines()[1:]))

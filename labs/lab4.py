@@ -22,28 +22,30 @@ if __name__ == "__main__":
     # print(reader.seqs)
     mapper = Mapper(reader.mapper, first, second)
     gap = arguments.gap
-    # firstal, secondal, score, first, second = lab1(mapper, reader, gap)
+    reader.bigrams(reader.first_seq)
+    # firstal, secondal, score, first, second = labs(mapper, reader, gap)
     # print(firstal)
     # print(secondal)
     # print(score)
-    # lab1(mapper, reader, gap)
+    # labs(mapper, reader, gap)
     # lab2(mapper, reader, gap)
     # smith_waterman(first, second, gap, reader.mapper)
     # align_sequences(first[1:], second[1:], reader.mapper, gap)
     # smith_waterman(first[1:], second[1:], gap, reader.mapper, -100, 100,-100,100)
-    import time
-    start = time.time()
-    results = []  # ( name, score, align)
-    i = 0
-    for item in reader.database[:10000]:
-        # print(i)
-        score, align = align_sequences(reader.first_seq, item[1], reader.mapper, gap)
-        results.append((item[0], score, align))
-        # i+=1
 
-    print(time.time() - start)
-    results.sort(key=lambda x: x[1], reverse=True)
-    short_list = results[:10]
-    for ind, item in enumerate(short_list):
-        print('%d. %s: %d' % (ind + 1, item[0], item[1]))
-        print(item[2])
+    # import time
+    # start = time.time()
+    # results = []  # ( name, score, align)
+    # i = 0
+    # for item in reader.database[:10000]:
+    #     # print(i)
+    #     score, align = align_sequences(reader.first_seq, item[1], reader.mapper, gap)
+    #     results.append((item[0], score, align))
+    #     # i+=1
+    #
+    # print(time.time() - start)
+    # results.sort(key=lambda x: x[1], reverse=True)
+    # short_list = results[:10]
+    # for ind, item in enumerate(short_list):
+    #     print('%d. %s: %d' % (ind + 1, item[0], item[1]))
+    #     print(item[2])

@@ -28,8 +28,8 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
     STOP = 3
     DIAG = 0
 
-    start = (a_min - b_max) // 2
-    end = (a_max - b_min) // 2
+    start = max((a_min - b_max) // 2, 0)
+    end = min(len1 - 1, (a_max - b_min) // 2)
 
     # ranges between y = x + b_min and y = x + b_max
     #                y = -x + a_min and y = -x + a_max
@@ -41,7 +41,7 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
         return _i + b_max >= _j >= _i + b_min and -_i + a_max >= _j >= -_i + a_min and limit(_i, _j)
 
     def get_intersection(_i: int):
-        return max(-_i + a_min, _i + b_min), min(- _i + a_max, _i + b_max)
+        return max(0, -_i + a_min, _i + b_min), min(len2 - 1, - _i + a_max, _i + b_max)
 
     def set_element(d: dict, el, i: int, j: int):
         if d.get(i) is None:
@@ -74,13 +74,11 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
                 # M[i - 1][j - 1] = (0, STOP)
                 set_element(M, (0, STOP), i - 1, j - 1)
 
-
             # maximums.append((match, DIAG))
 
             if not in_range(i - 1, j):
                 # M[i - 1][j] = (0, STOP)
-                set_element(M,(0, STOP), i - 1, j)
-
+                set_element(M, (0, STOP), i - 1, j)
 
             # maximums.append((insert, INS))
 
@@ -88,14 +86,12 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
                 set_element(M, (0, STOP), i, j - 1)
                 # M[i][j - 1] = (0, STOP)
 
-
             # maximums.append((delete, DEL))
 
-            if in_range(i,j):
-                delete = (M[i][j - 1][0] + gap, DEL)
-                insert = (M[i - 1][j][0] + gap, INS)
-                match = (M[i - 1][j - 1][0] + mapper(i, j), DIAG)
-                maximums += [delete,insert,match]
+            delete = (M[i][j - 1][0] + gap, DEL)
+            insert = (M[i - 1][j][0] + gap, INS)
+            match = (M[i - 1][j - 1][0] + mapper(i, j), DIAG)
+            maximums += [delete, insert, match]
 
             maximum = max(maximums)
             if maximum[0] >= max_element[0][0]:
@@ -264,9 +260,9 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     diags = create_diags_with_nodes(seq1, seq2, table)
     mapper = Mapper(table, seq1, seq2)
 
-    min_diag_len = 1
-    max_diag_num = 10
-    min_diag_score = 10
+    min_diag_len = 20
+    max_diag_num = 5
+    min_diag_score = 1000
 
     diags = [diag for diag in diags if diag.diag_len >= min_diag_len and diag.diag_score(mapper) > min_diag_score]
     # diags = [diag for diag in diags if diag.diag_score(mapper) > min_diag_score]
@@ -308,7 +304,7 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
     optimal_path = sorted(paths, key=lambda path: path[2])[-1]
 
     # print(paths)
-    tmp = 0
+    tmp = 32
     b_min = optimal_path[0] - tmp
     b_max = optimal_path[1] + tmp
     a_min = sum(optimal_path[3].start) - tmp
