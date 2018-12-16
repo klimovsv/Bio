@@ -193,9 +193,9 @@ def create_diags_with_nodes(seq1: str, seq2: str, table: TableType, bigrams_ind:
                     diag = index_to_diag[diag_index]
                 diag.dots += [(i, j)]
 
-    min_diag_len = 10
+    min_diag_len = 2
     max_diag_num = 5
-    min_diag_score = 100
+    min_diag_score = 50
 
     diags = index_to_diag.values()
     diags = [diag for diag in diags if diag.diag_len >= min_diag_len and diag.diag_score(mapper) > min_diag_score]

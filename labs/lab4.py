@@ -37,10 +37,11 @@ if __name__ == "__main__":
     start = time.time()
     results = []  # ( name, score, align)
     i = 0
-    for item in reader.database[:10000]:
+    for item in reader.database:
         # print(i)
         score, align = align_sequences(reader.first_seq, item[1], reader.mapper, gap,bigrams)
-        results.append((item[0], score, align))
+        if score > 0:
+            results.append((item[0], score, align))
         # i+=1
 
     print(time.time() - start)
