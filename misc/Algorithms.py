@@ -170,28 +170,52 @@ def fine_print(*args):
     return res
 
 
-def create_diags_with_nodes(seq1: str, seq2: str, table: TableType) -> List[Diag]:
+def create_diags_with_nodes(seq1: str, seq2: str, table: TableType, bigrams_ind: dict) -> List[Diag]:
     mapper = Mapper(table, seq1, seq2)
     len1 = len(seq1)
     len2 = len(seq2)
     k_gram = 2
-    M = empty_table(len1, len2)
 
     def limit(_i, _j):
         return _i < len1 and _j < len2
 
-    diags = []
-    for i in range(-len1 + 1, len2):
-        diags.append(Diag(i))
+    index_to_diag = {}
+
+    for j in range(len2 - 1):
+        bigram = seq2[j:j + 2]
+        indexs_in_first_seq = bigrams_ind.get(bigram)
+        if not indexs_in_first_seq is None:
+            for i in indexs_in_first_seq:
+                diag_index = j - i
+                diag = index_to_diag.get(diag_index)
+                if diag is None:
+                    index_to_diag[diag_index] = Diag(diag_index)
+                    diag = index_to_diag[diag_index]
+                diag.dots += [(i, j)]
+
+    min_diag_len = 10
+    max_diag_num = 5
+    min_diag_score = 100
+
+    diags = index_to_diag.values()
+    diags = [diag for diag in diags if diag.diag_len >= min_diag_len and diag.diag_score(mapper) > min_diag_score]
+
+    if not diags:
+        return diags
+
+    diags.sort(key=operator.attrgetter("score"), reverse=True)
+
+    diags = diags[:max_diag_num]
 
     for diag in diags:
-        i, j = diag.diag_start
-        while limit(i, j):
+        i, j = diag.dots[0]
+        i_end = diag.dots[-1][0] + 1
+        j_end = diag.dots[-1][1] + 1
+        while i <= i_end and j <= j_end:
             start_node = (i, j)
             score = 0
             node_len = 0
-            while limit(i, j) and seq1[i] == seq2[j]:
-                # M[i][j] = mapper(i, j)
+            while i <= i_end and j <= j_end and seq1[i] == seq2[j]:
                 score += mapper(i, j)
                 i += 1
                 j += 1
@@ -205,6 +229,32 @@ def create_diags_with_nodes(seq1: str, seq2: str, table: TableType) -> List[Diag
             j += 1
 
     return diags
+    #
+    # diags = []
+    # for i in range(-len1 + 1, len2):
+    #     diags.append(Diag(i))
+    #
+    # for diag in diags:
+    #     i, j = diag.diag_start
+    #     while limit(i, j):
+    #         start_node = (i, j)
+    #         score = 0
+    #         node_len = 0
+    #         while limit(i, j) and seq1[i] == seq2[j]:
+    #             # M[i][j] = mapper(i, j)
+    #             score += mapper(i, j)
+    #             i += 1
+    #             j += 1
+    #             node_len += 1
+    #
+    #         end_node = (i, j)
+    #         if end_node != start_node and node_len >= k_gram:
+    #             end_node = (i - 1, j - 1)
+    #             diag.add(Node(start_node, end_node, score, k_gram, diag.index))
+    #         i += 1
+    #         j += 1
+
+    # return diags
 
     # N = empty_table(len1, len2)
     # print_matrix(N)
@@ -256,22 +306,19 @@ def traverse(node: Node, path: Tuple):
         return paths
 
 
-def align_sequences(seq1: str, seq2: str, table: TableType, gap: int):
-    diags = create_diags_with_nodes(seq1, seq2, table)
+def align_sequences(seq1: str, seq2: str, table: TableType, gap: int, bigrams_ind: dict):
     mapper = Mapper(table, seq1, seq2)
+    diags = create_diags_with_nodes(seq1, seq2, table, bigrams_ind)
+    # print(len(diags))
 
-    min_diag_len = 20
-    max_diag_num = 5
-    min_diag_score = 1000
-
-    diags = [diag for diag in diags if diag.diag_len >= min_diag_len and diag.diag_score(mapper) > min_diag_score]
-    # diags = [diag for diag in diags if diag.diag_score(mapper) > min_diag_score]
+    # diags = [diag for diag in diags if diag.diag_len >= min_diag_len and diag.diag_score(mapper) > min_diag_score]
+    # # diags = [diag for diag in diags if diag.diag_score(mapper) > min_diag_score]
     if not diags:
         return -1, ''
-
-    diags.sort(key=operator.attrgetter("score"), reverse=True)
-
-    diags = diags[:max_diag_num]
+    #
+    # diags.sort(key=operator.attrgetter("score"), reverse=True)
+    #
+    # diags = diags[:max_diag_num]
 
     nodes = []
     for diag in diags:

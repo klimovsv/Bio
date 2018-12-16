@@ -20,12 +20,10 @@ class Reader:
     def bigrams(self, seq):
         bigrams = {}
         for i in range(len(seq)-1):
-            cell = bigrams.get(seq[i:i+2])
-            if cell is None:
-                cell = []
-            cell += [i]
-
-        print(bigrams)
+            if bigrams.get(seq[i:i+2]) is None:
+                bigrams[seq[i:i+2]] = []
+            bigrams[seq[i:i + 2]] += [i]
+        return bigrams
 
     def read_seq(self, file_name):
         with open(file_name, 'r') as file:
@@ -66,10 +64,3 @@ class Reader:
 
         if self.out:
             print(self.out)
-
-    @staticmethod
-    def fine_print(*args):
-        A, B = args[0]
-        iA, jA = args[1]
-        iB, jB = args[2]
-        seq1, seq2 = args[3]
