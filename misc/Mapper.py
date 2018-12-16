@@ -14,5 +14,5 @@ class Mapper:
                 score = self.mapper[self.seq1[i]][self.seq2[j]]
                 return score
             except Exception:
-                print(self.seq2, self.seq2[j])
+                # print(self.seq2, self.seq2[j])
                 return -1
