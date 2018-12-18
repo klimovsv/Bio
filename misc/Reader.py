@@ -11,24 +11,21 @@ class Reader:
         self.out = config.o
         self.seqs = (" " + self.first_seq, " " + self.second_seq)
 
-    def read_database(self,filename):
-        with open(filename,'r') as f:
+    def read_database(self, filename):
+        with open(filename, 'r') as f:
             self.database = json.load(f)
-        # print(len(self.database))
-        # print(len(self.database[0]))
 
     def bigrams(self, seq):
         bigrams = {}
-        for i in range(len(seq)-1):
-            if bigrams.get(seq[i:i+2]) is None:
-                bigrams[seq[i:i+2]] = []
+        for i in range(len(seq) - 1):
+            if bigrams.get(seq[i:i + 2]) is None:
+                bigrams[seq[i:i + 2]] = []
             bigrams[seq[i:i + 2]] += [i]
         return bigrams
 
     def read_seq(self, file_name):
         with open(file_name, 'r') as file:
             lines = list(filter(lambda x: len(x.strip()) != 0, file.read().splitlines()[1:]))
-            # print(lines)
             if len(lines) == 0:
                 raise Exception("empty sequence")
             for line in lines:

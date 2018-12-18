@@ -68,7 +68,8 @@ if __name__ == "__main__":
 
     print(time.time() - start)
     results.sort(key=lambda x: x[1], reverse=True)
-    short_list = results[:10]
-    for ind, item in enumerate(short_list):
-        print('%d. %s: %d' % (ind + 1, item[0], item[1]))
-        print(item[2])
+    short_list = results[:]
+    with open('results.txt','w') as file:
+        for ind, item in enumerate(short_list):
+            file.write('%d. %s: %d' % (ind + 1, item[0], item[1]))
+            file.write(item[2])

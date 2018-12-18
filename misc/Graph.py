@@ -1,5 +1,5 @@
 from typing import Tuple, List
-
+import uuid
 from misc.Mapper import Mapper
 
 PairType = Tuple[int, int]
@@ -8,6 +8,9 @@ PairType = Tuple[int, int]
 class Node:
     def __init__(self, start: PairType, end: PairType, score: int, k: int, diag_index: int):
         self.k = k
+        self.checked = False
+        self.component_nmb = None
+        self.uid = uuid.uuid4()
         self.start = start
         self.end = end
         self.next = []
@@ -16,29 +19,39 @@ class Node:
         self.root = False
         self.diag_index = diag_index
 
+    def __hash__(self):
+        return self.uid.__hash__()
+
     def add_next(self, edge):
         self.next.append(edge)
 
     def add_prev(self, edge):
         self.prev.append(edge)
 
-    def is_reachable(self,node):
-        end = self.end
-        start = node.start
-        return end[0] <= start[0] and end[1] <= start[1]
+    def is_reachable(self, node):
+        start = self.start
+        end = node.start
+        return end[0] >= start[0] and end[1] >= start[1] and (end[0] != start[0] or end[1] != start[1])
 
     def get_dist(self, node):
         start = self.end
         end = node.start
-        return end[0] - start[0] + end[1] - start[1]
+        if end[0] >= start[0] and end[1] >= start[1]:
+            return end[0] - start[0], end[1] - start[1]
+        elif end[1] > end[0] + self.diag_index:
+            return 0, abs(end[0] - (end[1] - self.diag_index))
+        else:
+            return abs(end[0] - (end[1] - self.diag_index)), 0
 
     @property
     def node_len(self):
         return self.end[0] - self.start[0] + self.k - 2
 
     def __repr__(self):
-        return "Start: %s. End: %s. Score: %s" % (self.start, self.end, self.score)
+        return "Start: %s. End: %s. Score: %s uid : %s" % (self.start, self.end, self.score,self.uid)
 
+    def __eq__(self, node):
+        return node.start == self.start and node.end == self.end
 
 class Edge:
     def __init__(self, prev_node, next_node,score):
@@ -71,18 +84,6 @@ class Diag:
         while tmp != end:
             self.score += mapper(tmp[0], tmp[1])
             tmp = (tmp[0]+1, tmp[1]+1)
-        # for i in range(len(self.nodes) - 1):
-        #     first_node = self.nodes[i]
-        #     second_node = self.nodes[i + 1]
-        #     start_ind = first_node.end
-        #     end_ind = second_node.start
-        #     cur_ind = (start_ind[0] + 1, start_ind[1] + 1)
-        #     for _ in range(end_ind[0] - start_ind[0] - 1):
-        #         score = mapper(cur_ind[0], cur_ind[1])
-        #         self.score += score
-        #         cur_ind = (cur_ind[0] + 1, cur_ind[1] + 1)
-
-        # self.score += sum(map(lambda node: node.score, self.nodes))
         return self.score
 
     @property
