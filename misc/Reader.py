@@ -6,10 +6,12 @@ class Reader:
         self.config = config
         self.mapper = self.load_mapper(config.mapper)
         self.first_seq = self.read_seq(config.seq1)
-        self.second_seq = self.read_seq(config.seq2)
+        self.second_seq = self.read_seq(config.seq2) if config.__contains__("seq2") else None
         self.database = []
-        self.out = config.o
-        self.seqs = (" " + self.first_seq, " " + self.second_seq)
+        self.out = config.o if config.__contains__("o") else None
+        self.seqs = (self.first_seq, self.second_seq)
+        if config.__contains__("database"):
+            self.read_database(config.database)
 
     def read_database(self, filename):
         with open(filename, 'r') as f:
@@ -42,6 +44,9 @@ class Reader:
             return json.load(f)
 
     def output(self, seq1, seq2, score):
+        if not self.out:
+            return
+
         s1 = []
         s2 = []
         while len(seq1) // 100 != 0:

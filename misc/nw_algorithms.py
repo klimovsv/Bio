@@ -1,8 +1,11 @@
 from misc.Algorithms import empty_table
+from misc.Mapper import Mapper
 
 
-def nw(mapper, reader, gap):
+def nw(reader, gap):
     first, second = reader.seqs
+    first, second = " " + first, " " + second
+    mapper = Mapper(reader.mapper, first, second)
 
     firstlen = len(first) - 1
     secondlen = len(second) - 1
@@ -62,11 +65,14 @@ def nw(mapper, reader, gap):
     print(A)
     print(B)
     print(F[firstlen][secondlen])
+    reader.output(A, B, F[firstlen][secondlen])
     return A, B, F[firstlen][secondlen], first, second
 
 
-def nw_affine(mapper, reader, opengap, extended=-1):
+def nw_affine(reader, opengap, extended=-1):
     first, second = reader.seqs
+    first, second = " " + first, " " + second
+    mapper = Mapper(reader.mapper, first, second)
 
     firstlen = len(first) - 1
     secondlen = len(second) - 1
