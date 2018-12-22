@@ -196,14 +196,14 @@ def traverse(node: Node, path: Tuple, gap: int, depth: int):
     for edge in node.next:
         next_node = edge.next
         p = gen_new_path(path, next_node, score + edge.score + next_node.score)
-        paths += traverse(next_node, p, gap, depth + 1)
-        paths.sort(key=operator.itemgetter(2), reverse=True)
-        paths = [paths[0]]
+        paths.append(traverse(next_node, p, gap, depth + 1))
+        # paths.sort(key=operator.itemgetter(2), reverse=True)
+        # paths = [paths[0]]
 
     if len(node.next) == 0:
-        return [path]
+        return path
     else:
-        return paths
+        return max(paths, key=operator.itemgetter(2))
 
 
 def align_sequences(seq1: str, seq2: str, table: TableType, gap: int, bigrams_ind: dict):
@@ -262,7 +262,7 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int, bigrams_in
     # print(components_nmb)
     for node in nodes:
         if len(node.prev) == 0:
-            paths += traverse(node, (node.diag_index, node.diag_index, node.score, node, node), gap, 0)
+            paths.append(traverse(node, (node.diag_index, node.diag_index, node.score, node, node), gap, 0))
 
     paths.sort(key=lambda path: path[2], reverse=True)
     optimal_paths = []
