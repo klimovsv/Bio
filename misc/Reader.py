@@ -64,5 +64,5 @@ class Reader:
                 f.write("{}\n".format(s1[i]))
                 f.write("{}\n".format(s2[i]))
 
-        if self.out:
-            print(self.out)
+        # if self.out:
+        #     print(self.out)
