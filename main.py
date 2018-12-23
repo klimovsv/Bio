@@ -1,5 +1,4 @@
 import argparse
-import operator
 import time
 from multiprocessing import Manager, Process
 
@@ -22,8 +21,6 @@ if __name__ == "__main__":
     gap = arguments.gap
     bigrams = reader.bigrams(reader.first_seq)
     proc_num = 8
-    results = []
-
 
     # функция для выравнивания
     def perform_align(db, proc_number, lst):
@@ -48,15 +45,16 @@ if __name__ == "__main__":
     part_proc = len(reader.database) // proc_num
 
     procs = [Process(target=perform_align, args=(reader.database[part_proc * i:part_proc * (i + 1)], i, l))
-    for i in range(proc_num)]
+             for i in range(proc_num)]
     for proc in procs:
         proc.start()
 
     for i in range(proc_num):
         procs[i].join()
 
-    for res in l:
-        results += res
+    results = []
+    for res_file in l:
+        results += res_file
 
     # сортировка по скору и запись в файлы output и results рабочей директории
     print('Number of seqs : {}'.format(len(results)))
@@ -64,9 +62,9 @@ if __name__ == "__main__":
     short_list = results[:]
     elapsed_time = time.time() - start
     print("Total time elapsed: %.2f" % elapsed_time)
-    with open('output.txt', 'w') as f:
-        with open('results.txt', 'w') as res:
+    with open('output.txt', 'w') as output_file:
+        with open('results.txt', 'w') as res_file:
             for ind, item in enumerate(short_list):
-                print('%d. %s: %d' % (ind + 1, item[0], item[1]), file=f)
-                print(item[2], file=f)
-                print('{} {} {}'.format(ind + 1, item[0], item[1]), file=res)
+                print('%d %s %d' % (ind + 1, item[0], item[1]), file=output_file)
+                print(item[2], file=output_file)
+                print('{} {} {}'.format(ind + 1, item[0], item[1]), file=res_file)
