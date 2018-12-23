@@ -1,7 +1,8 @@
+import operator
+from typing import Dict, List
+
 from misc.Graph import *
 from misc.Mapper import Mapper
-from typing import List, Dict
-import operator
 
 TableType = Dict[str, Dict[str, int]]
 
@@ -31,20 +32,20 @@ def smith_waterman(seq1, seq2, gap, table, b_min: int, b_max: int, a_min: int, a
     start = max((a_min - b_max) // 2, 0)
     end = min(len1 - 1, (a_max - b_min) // 2)
 
-    #ограничение по длине строки
+    # ограничение по длине строки
     def limit(_i, _j):
         return len1 > _i >= 0 and len2 > _j >= 0
 
-    #ограничение по рамке
+    # ограничение по рамке
     def in_range(_i: int, _j: int) -> bool:
         return _i + b_max >= _j >= _i + b_min and -_i + a_max >= _j >= -_i + a_min and limit(_i, _j)
 
-    #нахождение пересечения сторон рамки в i-й строке
+    # нахождение пересечения сторон рамки в i-й строке
     def get_intersection(_i: int):
         return max(0, -_i + a_min, _i + b_min), min(len2 - 1, - _i + a_max, _i + b_max)
 
-    #вместо матрицы используем словарь ind-> dict( ind -> score)
-    #установка скора в нужную позиуию
+    # вместо матрицы используем словарь ind-> dict( ind -> score)
+    # установка скора в нужную позиуию
     def set_element(d: dict, el, i: int, j: int):
         if d.get(i) is None:
             d[i] = {}
@@ -125,7 +126,6 @@ def fine_print(*args):
         res += (" " * iB + "|" * len(A)) + '\n'
         res += (seq2[:iB] + B + seq2[jB + 1:]) + '\n'
     return res
-
 
 
 # функция создания диагоналей вместе с вершинами графа
@@ -210,11 +210,6 @@ def gen_new_path(path, next_node, score):
     return new_min, new_max, new_score, path[3], next_node
 
 
-def closure(n):
-    def inner():
-        return n
-    return inner
-
 # обхода графа с глубину
 # возвращает самый лучший путь по скору из всех путей идущих из этой вершины
 def traverse(node: Node, path: Tuple, gap: int, depth: int):
@@ -273,7 +268,7 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int, bigrams_in
     paths = []
 
     # обход графа для выделения компонент связности
-    def visit(n : Node):
+    def visit(n: Node):
         n.checked = True
         for edg in n.next:
             next = edg.next

@@ -1,10 +1,11 @@
 import argparse
+import operator
 import time
-from multiprocessing import Process,Manager
+from multiprocessing import Manager, Process
 
 from misc.Algorithms import *
 from misc.Reader import Reader
-import operator
+
 
 def parse():
     parser = argparse.ArgumentParser()
@@ -21,13 +22,11 @@ if __name__ == "__main__":
     gap = arguments.gap
     bigrams = reader.bigrams(reader.first_seq)
     proc_num = 8
-    procs = [None] * proc_num
     results = []
 
 
     # функция для выравнивания
     def perform_align(db, proc_number, lst):
-        print("proc ", proc_number)
         start = time.time()
         res = []
         for item in db:
@@ -39,7 +38,7 @@ if __name__ == "__main__":
                     res.append((item[0], score, align))
         lst.append(res)
         elapsed_time = time.time() - start
-        print("Process: %s, Time elasped: %s." % (proc_number, elapsed_time))
+        print("Process: %s, Time elasped: %.2f" % (proc_number, elapsed_time))
 
 
     # создание и запуск процессов
@@ -48,9 +47,10 @@ if __name__ == "__main__":
     l = manager.list([])
     part_proc = len(reader.database) // proc_num
 
-    for i in range(proc_num):
-        procs[i] = Process(target=perform_align, args=(reader.database[part_proc * i:part_proc * (i + 1)], i, l))
-        procs[i].start()
+    procs = [Process(target=perform_align, args=(reader.database[part_proc * i:part_proc * (i + 1)], i, l))
+    for i in range(proc_num)]
+    for proc in procs:
+        proc.start()
 
     for i in range(proc_num):
         procs[i].join()
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     results.sort(key=operator.itemgetter(1), reverse=True)
     short_list = results[:]
     elapsed_time = time.time() - start
-    print("Total time elapsed: %s" % elapsed_time)
+    print("Total time elapsed: %.2f" % elapsed_time)
     with open('output.txt', 'w') as f:
         with open('results.txt', 'w') as res:
             for ind, item in enumerate(short_list):

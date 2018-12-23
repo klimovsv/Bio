@@ -1,5 +1,5 @@
-from typing import Tuple, List
-import uuid
+from typing import Tuple
+
 from misc.Mapper import Mapper
 
 PairType = Tuple[int, int]
@@ -10,7 +10,6 @@ class Node:
         self.k = k
         self.checked = False
         self.component_nmb = None
-        self.uid = uuid.uuid4()
         self.start = start
         self.end = end
         self.next = []
@@ -18,9 +17,6 @@ class Node:
         self.score = score
         self.root = False
         self.diag_index = diag_index
-
-    def __hash__(self):
-        return self.uid.__hash__()
 
     def add_next(self, edge):
         self.next.append(edge)
@@ -48,13 +44,14 @@ class Node:
         return self.end[0] - self.start[0] + self.k - 2
 
     def __repr__(self):
-        return "Start: %s. End: %s. Score: %s uid : %s" % (self.start, self.end, self.score,self.uid)
+        return "Start: %s. End: %s. Score: %s uid : %s" % (self.start, self.end, self.score, self.uid)
 
     def __eq__(self, node):
         return node.start == self.start and node.end == self.end
 
+
 class Edge:
-    def __init__(self, prev_node, next_node,score):
+    def __init__(self, prev_node, next_node, score):
         self.prev = prev_node
         self.next = next_node
         self.score = score
@@ -83,7 +80,7 @@ class Diag:
         tmp = start
         while tmp != end:
             self.score += mapper(tmp[0], tmp[1])
-            tmp = (tmp[0]+1, tmp[1]+1)
+            tmp = (tmp[0] + 1, tmp[1] + 1)
         return self.score
 
     @property

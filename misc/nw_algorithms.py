@@ -44,12 +44,12 @@ def nw(reader, gap):
             B = second[j] + B
             i -= 1
             j -= 1
-        #пришли слева - делеция
+        # пришли слева - делеция
         elif score == left + gap:
             A = "-" + A
             B = second[j] + B
             j -= 1
-        #пришли сверху - инсерция
+        # пришли сверху - инсерция
         elif score == up + gap:
             A = first[i] + A
             B = "-" + B
@@ -87,7 +87,6 @@ def nw_affine(reader, opengap, extended=-1):
     D = empty_table(firstlen + 1, secondlen + 1)
     R = empty_table(firstlen + 1, secondlen + 1)
 
-
     # задаем значение бесконечности для инициализации матрицы
     infinity = 2 * opengap + (firstlen + secondlen + 2) * extended + 1
     for i in range(len(M)):
@@ -115,7 +114,7 @@ def nw_affine(reader, opengap, extended=-1):
     # максимального элемента из трех матриц в данной позиции
     for i in range(firstlen + 1):
         for j in range(secondlen + 1):
-            R[i][j] = max((In[i][j], 2), (D[i][j], 1),  (M[i][j], 0))
+            R[i][j] = max((In[i][j], 2), (D[i][j], 1), (M[i][j], 0))
 
     # восстановление выравнивания
     A = ""

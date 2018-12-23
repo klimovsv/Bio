@@ -1,6 +1,8 @@
+import argparse
+
 from misc.Reader import Reader
 from misc.nw_algorithms import *
-import argparse
+
 
 def parse():
     parser = argparse.ArgumentParser()

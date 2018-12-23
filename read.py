@@ -22,6 +22,7 @@ for line in f.readlines():
         current_seq += line.rstrip()
 
 f.close()
-with open('base.json','w+') as f:
+with open('base.json', 'w+') as f:
     import json
-    json.dump(seqs,f,ensure_ascii=False)
+
+    json.dump(seqs, f, ensure_ascii=False)

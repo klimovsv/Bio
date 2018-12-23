@@ -1,6 +1,6 @@
-from misc.Reader import Reader
 import argparse
 
+from misc.Reader import Reader
 from misc.nw_algorithms import nw_affine
 
 
@@ -19,4 +19,3 @@ if __name__ == "__main__":
     reader = Reader(arguments)
     gap = arguments.gap
     nw_affine(reader, gap)
-
