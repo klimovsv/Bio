@@ -20,8 +20,11 @@ if __name__ == "__main__":
     reader = Reader(arguments)
     gap = arguments.gap
     bigrams = reader.bigrams(reader.first_seq)
-
-    alignments = align_sequences(reader.first_seq, reader.second_seq, reader.mapper, gap, bigrams)
+    seq1, seq2, table, bigrams_ind = reader.first_seq, reader.second_seq, reader.mapper, bigrams
+    diags = create_diags_with_nodes(seq1, seq2, table, bigrams_ind)
+    assert repr(diags) == "[{Nodes: [Start: (0, 10). End: (5, 15). Score: 31, Start: (7, 17). End: (15, 25). Score: 71]. " \
+                          "Diag index: (0, 10). Score: 100}]"
+    alignments = align_sequences(seq1, seq2, table, gap, bigrams_ind)
     for result in alignments:
         score = result[0]
         align = result[1]
@@ -29,7 +32,3 @@ if __name__ == "__main__":
             with open('output_test.txt', 'w') as output_file:
                 print('%d' % score, file=output_file)
                 print(align, file=output_file)
-
-
-
-

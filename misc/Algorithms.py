@@ -190,7 +190,6 @@ def create_diags_with_nodes(seq1: str, seq2: str, table: TableType, bigrams_ind:
                 diag.add(Node(start_node, end_node, score, k_gram, diag.index))
             i += 1
             j += 1
-    print(diags)
     return diags
 
 
@@ -313,6 +312,6 @@ def align_sequences(seq1: str, seq2: str, table: TableType, gap: int, bigrams_in
         b_max = path[1] + tmp
         a_min = sum(path[3].start) - tmp
         a_max = sum(path[4].end) + tmp
-        results += [smith_waterman(seq1, seq2, gap, table, b_min, b_max, a_min, a_max)]
+        results.append(smith_waterman(seq1, seq2, gap, table, b_min, b_max, a_min, a_max))
 
     return results
