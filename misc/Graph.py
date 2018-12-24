@@ -44,7 +44,7 @@ class Node:
         return self.end[0] - self.start[0] + self.k - 2
 
     def __repr__(self):
-        return "Start: %s. End: %s. Score: %s uid : %s" % (self.start, self.end, self.score, self.uid)
+        return "Start: %s. End: %s. Score: %s" % (self.start, self.end, self.score)
 
     def __eq__(self, node):
         return node.start == self.start and node.end == self.end

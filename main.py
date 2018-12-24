@@ -24,7 +24,7 @@ if __name__ == "__main__":
     proc_num = 8
 
     # функция для выравнивания
-    def perform_align(db, proc_number, lst):
+    def perform_align(db, proc_number, shared_list):
         start = time.time()
         res = []
         for item in db:
@@ -34,26 +34,26 @@ if __name__ == "__main__":
                 align = result[1]
                 if score > 0:
                     res.append((item[0], score, align))
-        lst.append(res)
+        shared_list.append(res)
         elapsed_time = time.time() - start
         print("Process: %s, Time elapsed: %.2f" % (proc_number, elapsed_time))
 
 
     # создание и запуск процессов
     manager = Manager()
-    l = manager.list([])
+    shared_list = manager.list([])
     part_proc = len(reader.database) // proc_num
 
-    procs = [Process(target=perform_align, args=(reader.database[part_proc * i:part_proc * (i + 1)], i, l))
+    procs = [Process(target=perform_align, args=(reader.database[part_proc * i:part_proc * (i + 1)], i, shared_list))
              for i in range(proc_num)]
     for proc in procs:
         proc.start()
 
-    for i in range(proc_num):
-        procs[i].join()
+    for proc in procs:
+        proc.join()
 
     results = []
-    for res_file in l:
+    for res_file in shared_list:
         results += res_file
 
     # сортировка по скору и запись в файлы output и results рабочей директории

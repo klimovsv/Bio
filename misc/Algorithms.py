@@ -132,7 +132,6 @@ def fine_print(*args):
 # на вход даются две последовательности, скоринговая таблица, таблица биграм для первой последовательности
 def create_diags_with_nodes(seq1: str, seq2: str, table: TableType, bigrams_ind: dict) -> List[Diag]:
     mapper = Mapper(table, seq1, seq2)
-    len1 = len(seq1)
     len2 = len(seq2)
     k_gram = 2
 
@@ -191,7 +190,7 @@ def create_diags_with_nodes(seq1: str, seq2: str, table: TableType, bigrams_ind:
                 diag.add(Node(start_node, end_node, score, k_gram, diag.index))
             i += 1
             j += 1
-
+    print(diags)
     return diags
 
 

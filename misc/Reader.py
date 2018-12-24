@@ -6,6 +6,8 @@ class Reader:
         self.config = config
         self.mapper = self.load_mapper(config.mapper)
         self.first_seq = self.read_seq(config.seq1)
+        if "seq2" in config and config.seq2 is not None:
+            self.second_seq = self.read_seq(config.seq2)
         self.database = []
         self.out = config.o if config.__contains__("o") else None
         if config.__contains__("database"):
