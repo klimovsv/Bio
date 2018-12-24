@@ -6,10 +6,8 @@ class Reader:
         self.config = config
         self.mapper = self.load_mapper(config.mapper)
         self.first_seq = self.read_seq(config.seq1)
-        self.second_seq = self.read_seq(config.seq2) if config.__contains__("seq2") else None
         self.database = []
         self.out = config.o if config.__contains__("o") else None
-        self.seqs = (self.first_seq, self.second_seq)
         if config.__contains__("database"):
             self.read_database(config.database)
 

@@ -16,6 +16,7 @@ def parse():
 
 
 if __name__ == "__main__":
+    start = time.time()
     arguments = parse()
     reader = Reader(arguments)
     gap = arguments.gap
@@ -35,11 +36,10 @@ if __name__ == "__main__":
                     res.append((item[0], score, align))
         lst.append(res)
         elapsed_time = time.time() - start
-        print("Process: %s, Time elasped: %.2f" % (proc_number, elapsed_time))
+        print("Process: %s, Time elapsed: %.2f" % (proc_number, elapsed_time))
 
 
     # создание и запуск процессов
-    start = time.time()
     manager = Manager()
     l = manager.list([])
     part_proc = len(reader.database) // proc_num
@@ -60,11 +60,11 @@ if __name__ == "__main__":
     print('Number of seqs : {}'.format(len(results)))
     results.sort(key=operator.itemgetter(1), reverse=True)
     short_list = results[:]
-    elapsed_time = time.time() - start
-    print("Total time elapsed: %.2f" % elapsed_time)
     with open('output.txt', 'w') as output_file:
         with open('results.txt', 'w') as res_file:
             for ind, item in enumerate(short_list):
                 print('%d %s %d' % (ind + 1, item[0], item[1]), file=output_file)
                 print(item[2], file=output_file)
                 print('{} {} {}'.format(ind + 1, item[0], item[1]), file=res_file)
+    elapsed_time = time.time() - start
+    print("Total time elapsed: %.2f" % elapsed_time)
